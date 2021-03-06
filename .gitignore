@@ -1,2 +1,6 @@
 # ignore test directory
 test/
+
+# ignore hidden (.) files
+.*
+!.gitignore

@@ -4,3 +4,6 @@ test/
 # ignore hidden (.) files
 .*
 !.gitignore
+
+# ignore output file
+ww

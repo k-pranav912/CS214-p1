@@ -5,6 +5,68 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <ctype.h>
+
+#define BUFFER 16
+
+int wrap(int in_fd, int out_fd, int width)
+{
+	int file_in = in_fd;
+	int file_out = out_fd;
+	int space_toggle = 0;
+	int new_line_toggle = 0;
+	int length_count = 0;
+	int read_val = 1;
+	char temp_string[BUFFER + 2];
+	int temp_string_count = 0;
+	int ret_val = 1;
+	while(read_val != 0){
+		char read_string[BUFFER + 1];
+		read_val = read(file_in, read_string, BUFFER); 
+		read_string[BUFFER] = '\0';
+		for(int i = 0; i < read_val; i++){
+			if(isspace(read_string[i]) != 0){
+				if(space_toggle == 0){
+					if(length_count > width && new_line_toggle != 2){
+						write(file_out, "\n", 1);
+						length_count = temp_string_count;
+					}
+					if(temp_string_count > width){ret_val = 0;}
+					for(int i = 0; i < temp_string_count; i++){
+						write(file_out, &temp_string[i], 1);
+						
+					}
+					write(file_out, " ", 1);
+					temp_string_count = 0;
+					space_toggle = 1;
+					length_count++;
+				}
+				if(new_line_toggle == 1){
+					if(read_string[i] == '\n'){
+						write(file_out, "\n\n", 2);
+						new_line_toggle = 2;
+						length_count = temp_string_count; 
+					}
+				}
+				else{new_line_toggle = 1;}
+			}
+			else{
+				space_toggle = 0;
+				new_line_toggle = 0;
+				temp_string[temp_string_count] = read_string[i];
+				temp_string_count++;
+				length_count++;
+			}
+			/*for(int i = 0; i < temp_string_count; i++){
+				printf("%c", temp_string[i]);
+			}
+			printf("\t%d\t%d\n", length_count, new_line_toggle);*/
+		}	
+	}
+	if(length_count - temp_string_count >= width){write(file_out, "\n", 1);}
+	write(file_out, &temp_string, temp_string_count);
+	return ret_val;
+}
 
 int is_dir(char *name) {
 	struct stat data;
@@ -92,7 +154,6 @@ int r_dir(char* path) {
  * 3. page width;
  * if directory has sub-directories, recursively call driver on the subdirectory.
  */
-//TODO: add another parameter; page width to driver
 int driver(char *path, int page_width) {
 	struct dirent *de;
 
@@ -138,15 +199,25 @@ int driver(char *path, int page_width) {
 				return 0;
 			}
 
-			//foo(in_fd, out_fd, page_width);
+			wrap(in_fd, out_fd, page_width);
 			
 			//testing
-			write(out_fd, "aa\nb", 4);
+			//write(out_fd, "aa\nb", 4);
 
+
+			free(new_file);
 			close(in_fd);
 			close(out_fd);
+			
 		}
+
+		free(new_path);
 	}
+
+	//free(de);
+	closedir(dr);
+
+	//free(dr);
 
 	return 1;
 }
@@ -173,9 +244,9 @@ int main(int argc, char **argv) {
 
 	printf("page_width: %d\n", page_width);
 
-	/*
+	
 	if (argc == 2) {
-		//foo(0, 1, page_width);
+		wrap(0, 1, page_width);
 	} else {
 		if (is_dir(argv[2])) {
 			driver(argv[2], page_width);
@@ -187,12 +258,12 @@ int main(int argc, char **argv) {
 				return 0;
 			}
 
-			//foo(inp_fd, 1, page_width);
+			wrap(inp_fd, 1, page_width);
 
 			close(inp_fd);
 		}
 	}
-	*/
+	
 
 	return 1;
 }

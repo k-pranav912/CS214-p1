@@ -80,66 +80,6 @@ int is_dir(char *name) {
 	return 0;
 }
 
-// hacky/testing/trying out methods and stuff for main driver function
-int r_dir(char* path) {
-
-	struct dirent *de;
-	
-	DIR *dr = opendir(path);
-
-	if (dr == 0) {
-		perror(path);
-		return 0;
-	}
-
-	while ((de = readdir(dr)) != NULL) {
-		printf("Name: %s\n", de->d_name);
-		printf("Name length: %ld\n", strlen(de->d_name));
-		printf("Type: %d\n", de->d_type);
-		//printf("  \n");
-
-		if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, "..")) {
-			//printf("waewgtfsdg\n");
-			continue;
-		}
-
-		if (strncmp(de->d_name, "wrap.", 5) == 0) {
-			continue;
-		}
-
-		char* new_path = malloc(strlen(de->d_name) + strlen(path) + 2);
-		new_path = strcpy(new_path, path);
-		strcat(new_path, "/");
-		strcat(new_path, de->d_name);
-		printf("path name: %s\n", new_path);
-		printf("Is Directory: %d\n", is_dir(new_path));
-
-		if (!is_dir(new_path)) {
-			int x = open(new_path, O_WRONLY|O_TRUNC);
-			printf("File Descriptor: %d\n", x);
-			close(x);
-
-			char *new_file = malloc(strlen(new_path) + 6);
-			strcpy(new_file, path);
-			strcat(new_file, "/");
-			strcat(new_file, "wrap.");
-			strcat(new_file, de->d_name);
-
-			int y = open(new_file, O_WRONLY|O_TRUNC|O_CREAT, 0777);
-			write(y, "aa\n", 3);
-			close(y);
-		}
-
-		printf("--\n");
-		free(new_path);
-		
-	}
-
-	closedir(dr);
-	return 1;
-
-}
-
 /*driver function, receives path name of directory as input
  * ignores . and .. directories
  * ignores files with prefix "wrap."
@@ -179,6 +119,7 @@ int driver(char *path, int page_width) {
 
 			
 			if (strncmp(de->d_name, "wrap.", 5) == 0) {
+				free(new_path);
 				continue;
 			}
 
@@ -197,9 +138,6 @@ int driver(char *path, int page_width) {
 			}
 
 			wrap(in_fd, out_fd, page_width);
-			
-			//testing
-			//write(out_fd, "aa\nb", 4);
 
 
 			free(new_file);
@@ -211,56 +149,51 @@ int driver(char *path, int page_width) {
 		free(new_path);
 	}
 
-	//free(de);
 	closedir(dr);
-
-	//free(dr);
 
 	return 1;
 }
 
-
 int main(int argc, char **argv) {
-	//printf("%d\n", is_dir("test"));
-	//r_dir("test");
-	//driver("test");
-	/*
-	if (argc == 3) {
-		printf("%s\n", argv[2]);
-	}
-	*/
 
 	int page_width = 0;
+	int err = 1;
 
 	if (argc < 2) {
 		perror("Not enough arguments.\n");
-		return 0;
+		return EXIT_FAILURE;
 	}
 
 	page_width = atoi(argv[1]);
-
-	printf("page_width: %d\n", page_width);
-
 	
 	if (argc == 2) {
-		wrap(0, 1, page_width);
+		err = wrap(0, 1, page_width);
+
+		if (err == 0) return EXIT_FAILURE;
+
 	} else {
 		if (is_dir(argv[2])) {
-			driver(argv[2], page_width);
+
+			err = driver(argv[2], page_width);
+
+			if (err == 0) return EXIT_FAILURE;
+
 		} else {
 			int inp_fd = open(argv[2], O_RDONLY);
 
 			if (inp_fd == -1) {
 				perror("Error opening file.\n");
-				return 0;
+				return EXIT_FAILURE;
 			}
 
-			wrap(inp_fd, 1, page_width);
+			err = wrap(inp_fd, 1, page_width);
+			
+			if (err == 0) return EXIT_FAILURE;
 
 			close(inp_fd);
 		}
 	}
 	
 
-	return 1;
+	return EXIT_SUCCESS;
 }

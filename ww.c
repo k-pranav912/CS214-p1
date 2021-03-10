@@ -93,7 +93,7 @@ int r_dir(char* path) {
  * if directory has sub-directories, recursively call driver on the subdirectory.
  */
 //TODO: add another parameter; page width to driver
-int driver(char *path) {
+int driver(char *path, int page_width) {
 	struct dirent *de;
 
 	DIR *dr = opendir(path);
@@ -116,7 +116,7 @@ int driver(char *path) {
 		strcat(new_path, de->d_name);
 
 		if (is_dir(new_path)) {
-			driver(new_path);
+			driver(new_path, page_width);
 		} else {
 
 			
@@ -135,7 +135,7 @@ int driver(char *path) {
 			//foo(in_fd, out_fd, page_width);
 			
 			//testing
-			//write(out_fd, "aa\nb", 4);
+			write(out_fd, "aa\nb", 4);
 
 			close(in_fd);
 			close(out_fd);
@@ -144,8 +144,47 @@ int driver(char *path) {
 }
 
 
-int main() {
+int main(int argc, char **argv) {
 	//printf("%d\n", is_dir("test"));
 	//r_dir("test");
-	//driver("test/test2");
+	//driver("test");
+	/*
+	if (argc == 3) {
+		printf("%s\n", argv[2]);
+	}
+	*/
+
+	int page_width = 0;
+
+	if (argc < 2) {
+		perror("Not enough arguments.\n");
+		return 0;
+	}
+
+	page_width = atoi(argv[1]);
+
+	//printf("page_width: %d\n", page_width);
+
+	/*
+	if (argc == 2) {
+		//foo(0, 1, page_width);
+	} else {
+		if (is_dir(argv[2])) {
+			driver(argv[2], page_width);
+		} else {
+			int inp_fd = open(argv[2], O_RDONLY);
+
+			if (inp_fd == -1) {
+				perror("Error opening file.\n");
+				return 0;
+			}
+
+			//foo(inp_fd, 1, page_width);
+
+			close(inp_fd);
+		}
+	}
+	*/
+
+	return 1;
 }

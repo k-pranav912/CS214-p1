@@ -9,7 +9,7 @@
 
 #define BUFFER 16
 
-void wrap(int in_fd, int out_fd, int width)
+int wrap(int in_fd, int out_fd, int width)
 {
 	int file_in = in_fd;
 	int file_out = out_fd;
@@ -19,6 +19,7 @@ void wrap(int in_fd, int out_fd, int width)
 	int read_val = 1;
 	char temp_string[BUFFER + 2];
 	int temp_string_count = 0;
+	int ret_val = 1;
 	while(read_val != 0){
 		char read_string[BUFFER + 1];
 		read_val = read(file_in, read_string, BUFFER); 
@@ -30,8 +31,10 @@ void wrap(int in_fd, int out_fd, int width)
 						write(file_out, "\n", 1);
 						length_count = temp_string_count;
 					}
+					if(temp_string_count > width){ret_val = 0;}
 					for(int i = 0; i < temp_string_count; i++){
 						write(file_out, &temp_string[i], 1);
+						
 					}
 					write(file_out, " ", 1);
 					temp_string_count = 0;
@@ -62,11 +65,13 @@ void wrap(int in_fd, int out_fd, int width)
 	}
 	if(length_count - temp_string_count >= width){write(file_out, "\n", 1);}
 	write(file_out, &temp_string, temp_string_count);
+	return ret_val;
 }
 int main(int argc, char* argv[])
 {
 	int in_fd = open("in.txt", O_RDONLY);
 	int out_fd = open("out.txt", O_WRONLY|O_TRUNC|O_CREAT, 0777);
-	wrap(in_fd, out_fd, 10);
+	int val = wrap(in_fd, out_fd, 10);
+	printf("%d\n", val);
 	
 }	

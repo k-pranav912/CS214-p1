@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 
-#define BUFFER 16
+#define BUFFER 128
 
 int wrap(int in_fd, int out_fd, int width)
 {
@@ -15,6 +15,7 @@ int wrap(int in_fd, int out_fd, int width)
 	int file_out = out_fd;
 	int space_toggle = 0;
 	int new_line_toggle = 0;
+	int first_toggle = 0;
 	int length_count = 0;
 	int read_val = 1;
 	char temp_string[BUFFER + 2];
@@ -27,14 +28,14 @@ int wrap(int in_fd, int out_fd, int width)
 		for(int i = 0; i < read_val; i++){
 			if(isspace(read_string[i]) != 0){
 				if(space_toggle == 0){
-					if(length_count > width && new_line_toggle != 2){
+					if(length_count > width && new_line_toggle != 2 && first_toggle != 0){
 						write(file_out, "\n", 1);
 						length_count = temp_string_count;
 					}
 					if(temp_string_count > width){ret_val = 0;}
 					for(int i = 0; i < temp_string_count; i++){
 						write(file_out, &temp_string[i], 1);
-						
+						first_toggle = 1;
 					}
 					write(file_out, " ", 1);
 					temp_string_count = 0;
@@ -57,10 +58,6 @@ int wrap(int in_fd, int out_fd, int width)
 				temp_string_count++;
 				length_count++;
 			}
-			/*for(int i = 0; i < temp_string_count; i++){
-				printf("%c", temp_string[i]);
-			}
-			printf("\t%d\t%d\n", length_count, new_line_toggle);*/
 		}	
 	}
 	if(length_count - temp_string_count >= width){write(file_out, "\n", 1);}

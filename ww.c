@@ -99,7 +99,7 @@ int driver(char *path, int page_width) {
 	DIR *dr = opendir(path);
 
 	if (dr == 0) {
-		perror(path);
+		perror("Error opening directory.\n");
 		return 0;
 	}
 
@@ -132,6 +132,12 @@ int driver(char *path, int page_width) {
 
 			int in_fd = open(new_path, O_RDONLY);
 			int out_fd = open(new_file, O_WRONLY|O_TRUNC|O_CREAT, 0777);
+
+			if (in_fd == -1 || out_fd == -1) {
+				perror("Could not create or open file.\n");
+				return 0;
+			}
+
 			//foo(in_fd, out_fd, page_width);
 			
 			//testing
@@ -141,6 +147,8 @@ int driver(char *path, int page_width) {
 			close(out_fd);
 		}
 	}
+
+	return 1;
 }
 
 
@@ -163,7 +171,7 @@ int main(int argc, char **argv) {
 
 	page_width = atoi(argv[1]);
 
-	//printf("page_width: %d\n", page_width);
+	printf("page_width: %d\n", page_width);
 
 	/*
 	if (argc == 2) {

@@ -7,22 +7,22 @@
 #include <sys/stat.h>
 #include <ctype.h>
 
+#define BUFFER 16
 
 void wrap(int in_fd, int out_fd, int width)
 {
 	int file_in = in_fd;
 	int file_out = out_fd;
-	int buffer = 1;
 	int space_toggle = 0;
 	int new_line_toggle = 0;
 	int length_count = 0;
 	int read_val = 1;
-	char temp_string[18];
+	char temp_string[BUFFER + 2];
 	int temp_string_count = 0;
 	while(read_val != 0){
-		char read_string[buffer + 1];
-		read_val = read(file_in, read_string, buffer); 
-		read_string[buffer] = '\0';
+		char read_string[BUFFER + 1];
+		read_val = read(file_in, read_string, BUFFER); 
+		read_string[BUFFER] = '\0';
 		for(int i = 0; i < read_val; i++){
 			if(isspace(read_string[i]) != 0){
 				if(space_toggle == 0){

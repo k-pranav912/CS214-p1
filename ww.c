@@ -37,7 +37,7 @@ int wrap(int in_fd, int out_fd, int width)
 						write(file_out, &temp_string[i], 1);
 						first_toggle = 1;
 					}
-					write(file_out, " ", 1);
+					if(first_toggle != 0){write(file_out, " ", 1);}
 					temp_string_count = 0;
 					space_toggle = 1;
 					length_count++;

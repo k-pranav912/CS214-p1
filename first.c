@@ -37,7 +37,7 @@ int wrap(int in_fd, int out_fd, int width)
 						write(file_out, &temp_string[i], 1);
 						first_toggle = 1;
 					}
-					write(file_out, " ", 1);
+					if(first_toggle != 0){write(file_out, " ", 1);}
 					temp_string_count = 0;
 					space_toggle = 1;
 					length_count++;
@@ -66,9 +66,10 @@ int wrap(int in_fd, int out_fd, int width)
 }
 int main(int argc, char* argv[])
 {
+	int out = atoi(argv[1]);
 	int in_fd = open("in.txt", O_RDONLY);
 	int out_fd = open("out.txt", O_WRONLY|O_TRUNC|O_CREAT, 0777);
-	int val = wrap(in_fd, out_fd, 30);
+	int val = wrap(in_fd, out_fd, out);
 	printf("%d\n", val);
 	
 }	

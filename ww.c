@@ -88,9 +88,8 @@ int is_dir(char *name) {
 /*driver function, receives path name of directory as input
  * ignores . and .. directories
  * ignores files with prefix "wrap."
- * goes through each file, creates "wrap." file and calls foo fuction.
- * foo function is stand-in for wrap function.
- * foo has following inputs:
+ * goes through each file, creates "wrap." file and calls wrap fuction.
+ * wrap has following inputs:
  * 1. file descriptor of original file that is to be read; inp_fd
  * 2. file descriptor of new file, that is to be written to; out_fd
  * 3. page width;
@@ -174,7 +173,7 @@ int main(int argc, char **argv) {
 	if (argc == 2) {
 		err = wrap(0, 1, page_width);
 
-		if (err == 0) return EXIT_FAILURE;
+		if (err == 0) {return EXIT_FAILURE;}
 
 	} else {
 		if (is_dir(argv[2])) {

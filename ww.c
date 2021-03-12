@@ -118,7 +118,7 @@ int driver(char *path, int page_width) {
 		} else {
 
 			
-			if (strncmp(de->d_name, "wrap.", 5) == 0) {
+			if ((strncmp(de->d_name, "wrap.", 5) == 0) || (strncmp(de->d_name, ".", 1) == 0)) {
 				free(new_path);
 				continue;
 			}

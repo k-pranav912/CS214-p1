@@ -16,6 +16,7 @@ int wrap(int in_fd, int out_fd, int width)
 	int space_toggle = 0;
 	int new_line_toggle = 0;
 	int first_toggle = 0;
+	int last_new_line = 0;
 	int length_count = 0;
 	int read_val = 1;
 	char temp_string[BUFFER + 2];
@@ -29,7 +30,7 @@ int wrap(int in_fd, int out_fd, int width)
 			if(isspace(read_string[i]) != 0){
 				if(space_toggle == 0){
 					if(length_count > width && new_line_toggle != 2 && first_toggle != 0){
-						write(file_out, "\n", 1);
+						if(last_new_line == 0){write(file_out, "\n", 1);}
 						length_count = temp_string_count;
 					}
 					if(temp_string_count > width){ret_val = 0;}
@@ -40,16 +41,20 @@ int wrap(int in_fd, int out_fd, int width)
 					if(first_toggle != 0){write(file_out, " ", 1);}
 					temp_string_count = 0;
 					space_toggle = 1;
+					last_new_line = 0;
 					length_count++;
 				}
-				if(new_line_toggle == 1){
+				if(new_line_toggle != 2){
 					if(read_string[i] == '\n'){
-						write(file_out, "\n\n", 2);
-						new_line_toggle = 2;
-						length_count = temp_string_count; 
-					}
+						if(new_line_toggle == 1){
+							write(file_out, "\n\n", 2);
+							new_line_toggle = 2;
+							last_new_line = 1;
+							length_count = temp_string_count; 
+						}
+						else{new_line_toggle = 1;}
+					}	
 				}
-				else{new_line_toggle = 1;}
 			}
 			else{
 				space_toggle = 0;

@@ -17,6 +17,7 @@ int wrap(int in_fd, int out_fd, int width)
 	int new_line_toggle = 0;
 	int first_toggle = 0;
 	int last_new_line = 0;
+	int last_new_toggle = 0;
 	int length_count = 0;
 	int read_val = 1;
 	char temp_string[BUFFER + 2];
@@ -32,13 +33,15 @@ int wrap(int in_fd, int out_fd, int width)
 					if(length_count > width && new_line_toggle != 2 && first_toggle != 0){
 						if(last_new_line == 0){write(file_out, "\n", 1);}
 						length_count = temp_string_count;
+						last_new_toggle = 1;
 					}
-					if(temp_string_count > width){ret_val = 0;}
+					if(first_toggle != 0 && last_new_line != 1 && last_new_toggle != 1){write(file_out, " ", 1);}
+					if(temp_string_count > width && i != read_val - 1){ret_val = 0;}
 					for(int i = 0; i < temp_string_count; i++){
 						write(file_out, &temp_string[i], 1);
 						first_toggle = 1;
 					}
-					if(first_toggle != 0){write(file_out, " ", 1);}
+					last_new_toggle = 0;
 					temp_string_count = 0;
 					space_toggle = 1;
 					last_new_line = 0;
@@ -65,8 +68,6 @@ int wrap(int in_fd, int out_fd, int width)
 			}
 		}	
 	}
-	if(length_count - temp_string_count >= width){write(file_out, "\n", 1);}
-	write(file_out, &temp_string, temp_string_count);
 	return ret_val;
 }
 
